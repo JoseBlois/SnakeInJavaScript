@@ -1,12 +1,12 @@
 var canvas = null,
     ctx = null;
-var x = 2,
-    y = 100,
+var 
     v = 2,
     lastPress = null;
     var KEY_LEFT =37,    KEY_UP =38,    KEY_RIGHT =39,    KEY_DOWN =40 , KEY_SPACE =32;
     var pause = true;
     var dir = 0;
+    player = new Rectangle(40,40,25);
 
 
  window.requestAnimationFrame = (function(){
@@ -27,7 +27,7 @@ function paint(ctx){
         ctx.fillRect(0,0,canvas.width,canvas.height);
 
         ctx.fillStyle='#FFF';
-        ctx.fillRect(x,y,25,25);
+        ctx.fillRect(player.x,player.y,player.width,player.height);
         ctx.fillStyle='#0f0';
         ctx.fillText('Last Press: ' + lastPress,10,20);
         if( pause){
@@ -59,29 +59,29 @@ function act(){
     };
     //Move rect
     if ( dir == 0 ) {
-        y -= 10;
+        player.y -= 10;
     }
     if ( dir == 1) {
-        x +=10
+        player.x +=10
     }
     if ( dir == 2 ) {
-        y +=10
+        player.y +=10
     }
     if ( dir == 3) {
-        x -=10
+        player.x -=10
     }
     // Out Screen
-    if(x > canvas.width){
-    x =0;
+    if(player.x > canvas.width){
+    player.x =0;
     }
-    if(y > canvas.height){
-    y =0;
+    if(player.y > canvas.height){
+    player.y =0;
     }
-    if(x <0){
-    x = canvas.width;
+    if(player.x <0){
+    player.x = canvas.width;
     }
-    if(y <0){
-    y = canvas.height;
+    if(player.y <0){
+    player.y = canvas.height;
     }
     }
     if(lastPress == KEY_SPACE ){
@@ -105,5 +105,26 @@ function init(){
     run();
     repaint();
 }
+function Rectangle(x, y, width, height){
+    this.x =(x ==null)?0: x;
+    this.y =(y ==null)?0: y;
+    this.width =(width ==null)?0: width;
+    this.height =(height ==null)?this.width : height;
+    this.intersects = function(rect){if(rect ==null){
+        window.console.warn('Missing parameters on function intersects');
+        }
+        else {
+             return(this.x < rect.x + rect.width &&this.x +this.width > rect.x &&this.y < rect.y + rect.height &&this.y +this.height > rect.y);
+            }
+            };
+    this.fill =function(ctx){
+        if(ctx ==null){
+        window.console.warn('Missing parameters on function fill');}
+        else{
+            ctx.fillRect(this.x,this.y,this.width,this.height);
+        }
+    };
+}
+
 window.addEventListener('load',init,false); 
 
