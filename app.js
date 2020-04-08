@@ -1,12 +1,14 @@
 var canvas = null,
     ctx = null;
 var 
-    v = 2,
+    v = 15,
     lastPress = null;
     var KEY_LEFT =37,    KEY_UP =38,    KEY_RIGHT =39,    KEY_DOWN =40 , KEY_SPACE =32;
     var pause = true;
-    var dir = 0;
-    player = new Rectangle(40,40,25);
+    var dir = 1 ;
+    var player = new Rectangle(40,40,25,25);
+    var food = new Rectangle(300,300,15,15);
+    var score =0;
 
 
  window.requestAnimationFrame = (function(){
@@ -27,9 +29,12 @@ function paint(ctx){
         ctx.fillRect(0,0,canvas.width,canvas.height);
 
         ctx.fillStyle='#FFF';
-        ctx.fillRect(player.x,player.y,player.width,player.height);
+        player.fill(ctx);
+        ctx.fillStyle='#F00';
+        food.fill(ctx)
         ctx.fillStyle='#0f0';
         ctx.fillText('Last Press: ' + lastPress,10,20);
+        ctx.fillText('Score: '+score,10,30);
         if( pause){
         ctx.textAlign='center';
         ctx.fillText('PAUSE',canvas.width/2,canvas.height/2);
@@ -59,16 +64,16 @@ function act(){
     };
     //Move rect
     if ( dir == 0 ) {
-        player.y -= 10;
+        player.y -= v;
     }
     if ( dir == 1) {
-        player.x +=10
+        player.x +=v
     }
     if ( dir == 2 ) {
-        player.y +=10
+        player.y +=v
     }
     if ( dir == 3) {
-        player.x -=10
+        player.x -=v
     }
     // Out Screen
     if(player.x > canvas.width){
@@ -87,6 +92,12 @@ function act(){
     if(lastPress == KEY_SPACE ){
         pause = !pause;
         lastPress=null;
+    }
+    if(player.intersects(food)){
+        score += 1;
+        food.x = random(canvas.width/10 -1) *10;
+        food.y = random(canvas.height/10 -1) * 10;
+
     }
 }
 function repaint(){
@@ -110,13 +121,14 @@ function Rectangle(x, y, width, height){
     this.y =(y ==null)?0: y;
     this.width =(width ==null)?0: width;
     this.height =(height ==null)?this.width : height;
-    this.intersects = function(rect){if(rect ==null){
+    this.intersects = function(rect){
+        if(rect ==null){
         window.console.warn('Missing parameters on function intersects');
         }
         else {
              return(this.x < rect.x + rect.width &&this.x +this.width > rect.x &&this.y < rect.y + rect.height &&this.y +this.height > rect.y);
             }
-            };
+    };
     this.fill =function(ctx){
         if(ctx ==null){
         window.console.warn('Missing parameters on function fill');}
@@ -124,6 +136,10 @@ function Rectangle(x, y, width, height){
             ctx.fillRect(this.x,this.y,this.width,this.height);
         }
     };
+}
+
+function random(max){
+    return Math.floor(Math.random() * max);
 }
 
 window.addEventListener('load',init,false); 
