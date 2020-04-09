@@ -8,14 +8,9 @@ var
     var gameover=true;
     var dir = 1 ;
     var body = new Array();
-    body[0] = new Rectangle(40,200,20,20);
-    var food = new Rectangle(300,120,20,20);
     var score =0;
     var walls = new Array();
-    //  walls.push(new Rectangle(260,120,40,40));
-    //  walls.push(new Rectangle(900,120,40,40));
-    //  walls.push(new Rectangle(260 ,440,40,40));
-    //  walls.push(new Rectangle(900,440,40,40));
+
     
     window.requestAnimationFrame = (function(){
     return window.requestAnimationFrame ||
@@ -46,7 +41,6 @@ document.addEventListener('keydown',function(evt){
 function paint(ctx){
         ctx.fillStyle='#000';
         ctx.fillRect(0,0,canvas.width,canvas.height);
-
         ctx.fillStyle='#FFF';
         //draws player
         for(i =0, l = body.length; i < l; i +=1){
@@ -84,8 +78,8 @@ function paint(ctx){
         dir = 1;
         body.length =0;
         body.push(new Rectangle(40,40,20,20));
-        body.push(new Rectangle(0,0,20,20));
-        body.push(new Rectangle(0,0,20,20));
+        body.push(new Rectangle(-20,0,20,20));
+        body.push(new Rectangle(-20,0,20,20));
         body[0].x=40;
         body[0].y=200;
         food.x = random(canvas.width/20 -1) *20;
@@ -104,16 +98,22 @@ function act(){
     if(gameover){
             reset();
         } 
-    if ( lastPress == KEY_UP){ 
+    // moves body
+    for(i = body.length -1; i >0; i -=1){            
+        body[i].x = body[i -1].x;            
+        body[i].y = body[i -1].y;
+    }
+    //change direction
+    if ( lastPress == KEY_UP && dir !=2){ 
         dir = 0;
     };
-    if ( lastPress == KEY_RIGHT){ 
+    if ( lastPress == KEY_RIGHT && dir !=3){ 
         dir = 1;
     };
-    if ( lastPress == KEY_DOWN){ 
+    if ( lastPress == KEY_DOWN && dir !=0){ 
         dir = 2;
     };
-    if ( lastPress == KEY_LEFT){ 
+    if ( lastPress == KEY_LEFT && dir !=1){ 
         dir = 3;
     };
     //Move rect
@@ -142,10 +142,7 @@ function act(){
     if(body[0].y <0){
     body[0].y = canvas.height;
     }
-    for(i = body.length -1; i >0; i -=1){            
-        body[i].x = body[i -1].x;            
-        body[i].y = body[i -1].y;
-    } 
+ 
     }
     if(body[0].intersects(food)){
         score += 1;
@@ -156,16 +153,28 @@ function act(){
      body.push(new Rectangle(body[body.length-1].x,body[body.length-1].y,20,20));
         
     }
-    // for(let ix =0; ix < 4;ix++){
-    //     if(walls[ix].intersects(food)){
-    //         food.x = random(canvas.width/20 -1) *20;
-    //         food.y = random(canvas.height/20 -1) *20;
-    //     }
-    //     if(body[0].intersects(walls[ix])){
-    //         gameover = true;
-    //        pause = true;
-    //     }
-    // }
+     for(let ix =0; ix < 4;ix++){
+         if(walls[ix].intersects(food)){
+             food.x = random(canvas.width/20 -1) *20;
+             food.y = random(canvas.height/20 -1) *20;
+         }
+         if(body[0].intersects(walls[ix])){
+             gameover = true;
+            pause = true;
+         }
+     }
+     for(let index = 1; index<body.length;index++){
+         if(body[index].intersects(food)){
+            food.x = random(canvas.width/20 -1) *20;
+            food.y = random(canvas.height/20 -1) *20; 
+         }
+         if(index>2){
+             if(body[0].intersects(body[index])){
+                gameover = true;
+                pause = true;
+             }
+         }
+     }
     
     if(lastPress == KEY_SPACE ){
         pause = !pause;
@@ -182,9 +191,18 @@ function run(){
     act();
 }
 
-function init(){
+function init(){ 
     canvas = document.getElementById('canvas');
     ctx = canvas.getContext('2d');
+    //Creating player and food;
+    body.push(new Rectangle(40,200,20,20));
+    food = new Rectangle(300,120,20,20);
+    //creating walls
+    walls.push(new Rectangle((canvas.width/4)-40,(canvas.height/4)-40,40,40));
+    walls.push(new Rectangle((canvas.width/4*3),(canvas.height/4)-40,40,40));
+    walls.push(new Rectangle((canvas.width/4)-40,(canvas.height/4*3),40,40));
+    walls.push(new Rectangle((canvas.width/4)*3,(canvas.height/4*3),40,40));
+
     run();
     repaint();
 }
