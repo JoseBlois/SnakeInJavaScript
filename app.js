@@ -1,17 +1,22 @@
 var canvas = null,
     ctx = null;
 var 
-    v = 15,
+    v = 20,
     lastPress = null;
     var KEY_LEFT =37,    KEY_UP =38,    KEY_RIGHT =39,    KEY_DOWN =40 , KEY_SPACE =32;
     var pause = true;
+    var gameover=false;
     var dir = 1 ;
-    var player = new Rectangle(40,40,25,25);
-    var food = new Rectangle(300,300,15,15);
+    var player = new Rectangle(40,200,20,20);
+    var food = new Rectangle(300,120,20,20);
     var score =0;
-
-
- window.requestAnimationFrame = (function(){
+    var walls = new Array();
+    walls.push(new Rectangle(260,120,40,40));
+    walls.push(new Rectangle(900,120,40,40));
+    walls.push(new Rectangle(260 ,440,40,40));
+    walls.push(new Rectangle(900,440,40,40));
+    
+    window.requestAnimationFrame = (function(){
     return window.requestAnimationFrame ||
         window.mozRequestAnimationFrame ||
         window.webkitRequestAnimationFrame ||
@@ -22,6 +27,19 @@ var
 
 document.addEventListener('keydown',function(evt){
     lastPress = evt.which; //
+    /*
+    if ( lastPress == KEY_UP && v > 0){ 
+        v-=5;
+    };
+    if ( lastPress == KEY_RIGHT && v > 0){ 
+         v-=5;
+    };
+    if ( lastPress == KEY_DOWN && v > 0){ 
+        v-=5;
+    };
+    if ( lastPress == KEY_LEFT && v > 0){ 
+        v-=5;
+    }; */
 },false);
 
 function paint(ctx){
@@ -30,19 +48,44 @@ function paint(ctx){
 
         ctx.fillStyle='#FFF';
         player.fill(ctx);
+        ctx.fillStyle='#888';
+        ctx.fillRect(player.x,player.y,5,5);
+        //DRAWS WALLLS
+        for (let i = 0; i < walls.length; i++) {
+            walls[i].fill(ctx);            
+        }
+        //DRAWS FOOD
         ctx.fillStyle='#F00';
         food.fill(ctx)
         ctx.fillStyle='#0f0';
         ctx.fillText('Last Press: ' + lastPress,10,20);
         ctx.fillText('Score: '+score,10,30);
-        if( pause){
+        ctx.fillText('Speed: '+v,10,40)
+        if(pause){
         ctx.textAlign='center';
-        ctx.fillText('PAUSE',canvas.width/2,canvas.height/2);
-        ctx.fillText('[SPACEBAR TO CONTINUE]',canvas.width/2,canvas.height/2+20);
+        if(gameover){
+            ctx.fillText('GAME OVER',canvas.width/2,canvas.height/2)
+        }
+        else {
+            ctx.fillText('PAUSE',canvas.width/2,canvas.height/2);
+            ctx.fillText('[SPACEBAR TO CONTINUE]',canvas.width/2,canvas.height/2+20);
+        }
         ctx.textAlign='left';
+        
         }
 }
-
+//Reset function
+    function reset(){
+        score=0;
+        dir = 1;
+        player.x=40;
+        player.y=200;
+        food.x = random(canvas.width/20 -1) *20;
+        food.y = random(canvas.height/20 -1) *20;
+        lastPress = KEY_RIGHT;
+        gameover = false;
+    }
+//actions during the game
 function act(){
     // x += v;
     // if(x > canvas.width){
@@ -50,6 +93,9 @@ function act(){
     // }
     //change Direction;
     if(!pause){
+    if(gameover){
+            reset();
+        } 
     if ( lastPress == KEY_UP){ 
         dir = 0;
     };
@@ -76,13 +122,13 @@ function act(){
         player.x -=v
     }
     // Out Screen
-    if(player.x > canvas.width){
-    player.x =0;
+    if(player.x + player.width > canvas.width){
+    player.x = 0  ;
     }
-    if(player.y > canvas.height){
+    if(player.y + player.width > canvas.height){
     player.y =0;
     }
-    if(player.x <0){
+    if(player.x < 0 ){
     player.x = canvas.width;
     }
     if(player.y <0){
@@ -95,9 +141,19 @@ function act(){
     }
     if(player.intersects(food)){
         score += 1;
-        food.x = random(canvas.width/10 -1) *10;
-        food.y = random(canvas.height/10 -1) * 10;
-
+        food.x = random(canvas.width/20 -1) *20;
+        food.y = random(canvas.height/20 -1) *20;
+      //  v = 15;
+    }
+    for(let ix =0; ix < 4;ix++){
+        if(walls[ix].intersects(food)){
+            food.x = random(canvas.width/20 -1) *20;
+            food.y = random(canvas.height/20 -1) *20;
+        }
+        if(player.intersects(walls[ix])){
+            gameover = true;
+           pause = true;
+        }
     }
 }
 function repaint(){
