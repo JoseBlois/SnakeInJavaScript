@@ -5,17 +5,17 @@ var
     lastPress = null;
     var KEY_LEFT =37,    KEY_UP =38,    KEY_RIGHT =39,    KEY_DOWN =40 , KEY_SPACE =32;
     var pause = true;
-    var gameover=false;
+    var gameover=true;
     var dir = 1 ;
     var body = new Array();
     body[0] = new Rectangle(40,200,20,20);
     var food = new Rectangle(300,120,20,20);
     var score =0;
     var walls = new Array();
-    // walls.push(new Rectangle(260,120,40,40));
-    // walls.push(new Rectangle(900,120,40,40));
-    // walls.push(new Rectangle(260 ,440,40,40));
-    // walls.push(new Rectangle(900,440,40,40));
+    //  walls.push(new Rectangle(260,120,40,40));
+    //  walls.push(new Rectangle(900,120,40,40));
+    //  walls.push(new Rectangle(260 ,440,40,40));
+    //  walls.push(new Rectangle(900,440,40,40));
     
     window.requestAnimationFrame = (function(){
     return window.requestAnimationFrame ||
@@ -48,7 +48,10 @@ function paint(ctx){
         ctx.fillRect(0,0,canvas.width,canvas.height);
 
         ctx.fillStyle='#FFF';
-        body[0].fill(ctx);
+        //draws player
+        for(i =0, l = body.length; i < l; i +=1){
+             body[i].fill(ctx);
+            }
         ctx.fillStyle='#888';
         ctx.fillRect(body[0].x,body[0].y,5,5);
         //DRAWS WALLLS
@@ -79,6 +82,10 @@ function paint(ctx){
     function reset(){
         score=0;
         dir = 1;
+        body.length =0;
+        body.push(new Rectangle(40,40,20,20));
+        body.push(new Rectangle(0,0,20,20));
+        body.push(new Rectangle(0,0,20,20));
         body[0].x=40;
         body[0].y=200;
         food.x = random(canvas.width/20 -1) *20;
@@ -135,16 +142,19 @@ function act(){
     if(body[0].y <0){
     body[0].y = canvas.height;
     }
-    }
-    if(lastPress == KEY_SPACE ){
-        pause = !pause;
-        lastPress=null;
+    for(i = body.length -1; i >0; i -=1){            
+        body[i].x = body[i -1].x;            
+        body[i].y = body[i -1].y;
+    } 
     }
     if(body[0].intersects(food)){
         score += 1;
         food.x = random(canvas.width/20 -1) *20;
         food.y = random(canvas.height/20 -1) *20;
       //  v = 15;
+      //Making the body 
+     body.push(new Rectangle(body[body.length-1].x,body[body.length-1].y,20,20));
+        
     }
     // for(let ix =0; ix < 4;ix++){
     //     if(walls[ix].intersects(food)){
@@ -156,6 +166,11 @@ function act(){
     //        pause = true;
     //     }
     // }
+    
+    if(lastPress == KEY_SPACE ){
+        pause = !pause;
+        lastPress=null;
+    } 
 }
 function repaint(){
     window.requestAnimationFrame(repaint);
