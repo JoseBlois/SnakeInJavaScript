@@ -8,11 +8,12 @@ var
     var pause = true;
     var gameover=false;
     var dir = 1 ;
-    var body = new Array();
+    var body = [];
     var score =0;
-    var walls = new Array();
+    var walls = [];
     var head = new Image();
     var burger = new Image();
+    var track = 0;
     
     window.requestAnimationFrame = (function(){
     return window.requestAnimationFrame ||
@@ -39,7 +40,13 @@ document.addEventListener('keydown',function(evt){
         v-=5;
     }; */
 },false);
-
+    //making walls thicker
+    //  function updateWalls(){
+    //      for (let i=0;i<walls.length;i++){
+    //          walls[i].width +=5;
+    //          walls[i].height +=5;
+    //      }
+    //  }
 function paint(ctx){
         ctx.fillStyle='#000';
         ctx.fillRect(0,0,canvas.width,canvas.height);
@@ -90,6 +97,10 @@ function paint(ctx){
         body[0].y=200;
         food.x = random(canvas.width/20 -1) *20;
         food.y = random(canvas.height/20 -1) *20;
+        walls[0].resetWall((canvas.width/4)-40,(canvas.height/4)-40,40,40);
+        walls[1].resetWall((canvas.width/4*3),(canvas.height/4)-40,40,40);
+        walls[2].resetWall((canvas.width/4)-40,(canvas.height/4*3),40,40);
+        walls[3].resetWall((canvas.width/4)*3,(canvas.height/4*3),40,40);
         lastPress = KEY_RIGHT;
         gameover = false;
     }
@@ -149,7 +160,7 @@ function act(){
     body[0].y = canvas.height;
     }
  
-    }
+   
     if(body[0].intersects(food)){
         score += 1;
         food.x = random(canvas.width/20 -1) *20;
@@ -181,7 +192,14 @@ function act(){
              }
          }
      }
-    
+     if(score%10 ===0 && score !==0 && (score/10) === (track+1)){
+        walls[0].resetWall((canvas.width/4)-40,(canvas.height/4)-40,40,40);
+        walls[1].resetWall((canvas.width/4*3),(canvas.height/4)-40,40,40);
+        walls[2].resetWall((canvas.width/4)-40,(canvas.height/4*3),40,40);
+        walls[3].resetWall((canvas.width/4)*3,(canvas.height/4*3),40,40);
+        track +=1;
+     }
+    }
     if(lastPress == KEY_SPACE ){
         pause = !pause;
         lastPress=null;
@@ -215,6 +233,7 @@ function init(){
 
     run();
     repaint();
+    updateWalls();
 }
 function Rectangle(x, y, width, height){
     this.x =(x ==null)?0: x;
@@ -236,8 +255,24 @@ function Rectangle(x, y, width, height){
             ctx.fillRect(this.x,this.y,this.width,this.height);
         }
     };
+    this.resetWall= function (x, y, width, height){
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+    };
 }
-
+function updateWalls(){
+    setTimeout(updateWalls,2000)
+    if(!pause){
+    for (let i=0;i<walls.length;i++){
+        walls[i].width +=5;
+        walls[i].height +=5;
+        walls[i].x-=2.5;
+        walls[i].y-=2.5;
+    }
+    }
+}
 function random(max){
     return Math.floor(Math.random() * max);
 }
