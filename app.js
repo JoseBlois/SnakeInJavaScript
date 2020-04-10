@@ -1,4 +1,5 @@
 /*jslint bitwise:true, es5: true */
+(function(window,undefined){
 var canvas = null,
     ctx = null;
 var 
@@ -25,20 +26,7 @@ var
 }());
 
 document.addEventListener('keydown',function(evt){
-    lastPress = evt.which; //
-    /*
-    if ( lastPress == KEY_UP && v > 0){ 
-        v-=5;
-    };
-    if ( lastPress == KEY_RIGHT && v > 0){ 
-         v-=5;
-    };
-    if ( lastPress == KEY_DOWN && v > 0){ 
-        v-=5;
-    };
-    if ( lastPress == KEY_LEFT && v > 0){ 
-        v-=5;
-    }; */
+    lastPress = evt.which; 
 },false);
     //making walls thicker
     //  function updateWalls(){
@@ -54,7 +42,7 @@ function paint(ctx){
         //draws player
         for(i =0, l = body.length; i < l; i +=1){
             if(i===0){
-            ctx.drawImage(head,body[i].x,body[i].y)
+            body[0].drawImage(ctx,head)
             }
             else
              body[i].fill(ctx);
@@ -67,7 +55,7 @@ function paint(ctx){
         //DRAWS FOOD
         ctx.fillStyle='#F00';
         //food.fill(ctx)
-        ctx.drawImage(burger,food.x,food.y);
+        food.drawImage(ctx,burger);
         ctx.fillStyle='#0f0';
         ctx.fillText('Last Press: ' + lastPress,10,20);
         ctx.fillText('Score: '+score,10,30);
@@ -101,6 +89,7 @@ function paint(ctx){
         walls[1].resetWall((canvas.width/4*3),(canvas.height/4)-40,40,40);
         walls[2].resetWall((canvas.width/4)-40,(canvas.height/4*3),40,40);
         walls[3].resetWall((canvas.width/4)*3,(canvas.height/4*3),40,40);
+        track=0;
         lastPress = KEY_RIGHT;
         gameover = false;
     }
@@ -192,7 +181,7 @@ function act(){
              }
          }
      }
-     if(score%10 ===0 && score !==0 && (score/10) === (track+1)){
+     if(score%10 ===0 && score !==0 && score/10 === track+1){
         walls[0].resetWall((canvas.width/4)-40,(canvas.height/4)-40,40,40);
         walls[1].resetWall((canvas.width/4*3),(canvas.height/4)-40,40,40);
         walls[2].resetWall((canvas.width/4)-40,(canvas.height/4*3),40,40);
@@ -240,7 +229,8 @@ function Rectangle(x, y, width, height){
     this.y =(y ==null)?0: y;
     this.width =(width ==null)?0: width;
     this.height =(height ==null)?this.width : height;
-    this.intersects = function(rect){
+}
+    Rectangle.prototype.intersects = function(rect){
         if(rect ==null){
         window.console.warn('Missing parameters on function intersects');
         }
@@ -248,34 +238,47 @@ function Rectangle(x, y, width, height){
              return(this.x < rect.x + rect.width &&this.x +this.width > rect.x &&this.y < rect.y + rect.height &&this.y +this.height > rect.y);
             }
     };
-    this.fill =function(ctx){
+    Rectangle.prototype.fill =function(ctx){
         if(ctx ==null){
         window.console.warn('Missing parameters on function fill');}
         else{
             ctx.fillRect(this.x,this.y,this.width,this.height);
         }
     };
-    this.resetWall= function (x, y, width, height){
+    Rectangle.prototype.resetWall= function (x, y, width, height){
         this.x = x;
         this.y = y;
         this.width = width;
         this.height = height;
     };
-}
+    Rectangle.prototype.drawImage = function(ctx,img){
+        if(img === undefined){
+            window.console.warn('Missing parameters in drawImage function');
+        }else{
+            if(img.width){
+                 ctx.drawImage(img,this.x,this.y);
+                }else{
+                    ctx.strokeRect(this.x, this.y,this.width,this.height);
+                }
+        }
+    };
+
 function updateWalls(){
     setTimeout(updateWalls,2000)
+    var g = 11;
     if(!pause){
     for (let i=0;i<walls.length;i++){
-        walls[i].width +=5;
-        walls[i].height +=5;
-        walls[i].x-=2.5;
-        walls[i].y-=2.5;
+        walls[i].width +=g;
+        walls[i].height +=g;
+        walls[i].x-=g/2;
+        walls[i].y-=g/2;
     }
     }
 }
 function random(max){
-    return Math.floor(Math.random() * max);
+    return ~~(Math.random() * max);
 }
 
 window.addEventListener('load',init,false); 
 
+}(window));
