@@ -1,3 +1,4 @@
+/*jslint bitwise:true, es5: true */
 var canvas = null,
     ctx = null;
 var 
@@ -5,12 +6,13 @@ var
     lastPress = null;
     var KEY_LEFT =37,    KEY_UP =38,    KEY_RIGHT =39,    KEY_DOWN =40 , KEY_SPACE =32;
     var pause = true;
-    var gameover=true;
+    var gameover=false;
     var dir = 1 ;
     var body = new Array();
     var score =0;
     var walls = new Array();
-
+    var head = new Image();
+    var burger = new Image();
     
     window.requestAnimationFrame = (function(){
     return window.requestAnimationFrame ||
@@ -44,17 +46,21 @@ function paint(ctx){
         ctx.fillStyle='#FFF';
         //draws player
         for(i =0, l = body.length; i < l; i +=1){
+            if(i===0){
+            ctx.drawImage(head,body[i].x,body[i].y)
+            }
+            else
              body[i].fill(ctx);
             }
         ctx.fillStyle='#888';
-        ctx.fillRect(body[0].x,body[0].y,5,5);
         //DRAWS WALLLS
         for (let i = 0; i < walls.length; i++) {
             walls[i].fill(ctx);            
         }
         //DRAWS FOOD
         ctx.fillStyle='#F00';
-        food.fill(ctx)
+        //food.fill(ctx)
+        ctx.drawImage(burger,food.x,food.y);
         ctx.fillStyle='#0f0';
         ctx.fillText('Last Press: ' + lastPress,10,20);
         ctx.fillText('Score: '+score,10,30);
@@ -196,7 +202,11 @@ function init(){
     ctx = canvas.getContext('2d');
     //Creating player and food;
     body.push(new Rectangle(40,200,20,20));
+    body.push(new Rectangle(-20,0,20,20));
+    body.push(new Rectangle(-20,0,20,20));
     food = new Rectangle(300,120,20,20);
+    head.src ='assets/head.png'
+    burger.src ='assets/burgah.png'
     //creating walls
     walls.push(new Rectangle((canvas.width/4)-40,(canvas.height/4)-40,40,40));
     walls.push(new Rectangle((canvas.width/4*3),(canvas.height/4)-40,40,40));
